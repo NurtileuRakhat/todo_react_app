@@ -17,6 +17,7 @@ import { useHotkeys, useLocalStorage } from "@mantine/hooks";
 
 export default function TaskManager() {
   const [tasks, setTasks] = useState([]);
+  const [allTasks, setAllTasks] = useState([]);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const titleRef = useRef("");
@@ -44,6 +45,7 @@ export default function TaskManager() {
   useEffect(() => {
     const storedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
     setTasks(storedTasks);
+    setAllTasks(storedTasks); 
   }, []);
 
   const addTask = () => {
@@ -55,6 +57,7 @@ export default function TaskManager() {
     };
     const updatedList = [...tasks, newTask];
     setTasks(updatedList);
+    setAllTasks(updatedList); 
     localStorage.setItem("tasks", JSON.stringify(updatedList));
     titleRef.current.value = "";
     summaryRef.current.value = "";
@@ -63,6 +66,7 @@ export default function TaskManager() {
   const removeTask = (idx) => {
     const updatedList = tasks.filter((_, index) => index !== idx);
     setTasks(updatedList);
+    setAllTasks(updatedList); 
     localStorage.setItem("tasks", JSON.stringify(updatedList));
   };
 
@@ -86,12 +90,13 @@ export default function TaskManager() {
       deadline: currentTask.deadline,
     };
     setTasks(updatedList);
+    setAllTasks(updatedList); 
     localStorage.setItem("tasks", JSON.stringify(updatedList));
     setEditModalOpen(false);
   };
 
   const sortTasksByStatus = (status) => {
-    const sorted = [...tasks].sort((a, b) => {
+    const sorted = [...allTasks].sort((a, b) => {
       if (a.status === status) return -1;
       if (b.status === status) return 1;
       return 0;
@@ -101,7 +106,6 @@ export default function TaskManager() {
   };
 
   const filterTasksByStatus = (status) => {
-    const allTasks = JSON.parse(localStorage.getItem("tasks")) || [];
     const filtered = allTasks.filter((task) => task.status === status);
     setTasks(filtered);
     setFilterStatus(status);
@@ -117,6 +121,10 @@ export default function TaskManager() {
     localStorage.setItem("tasks", JSON.stringify(sorted));
   };
 
+  const resetFilter = () => {
+    setTasks(allTasks);
+    setFilterStatus(null);
+  };
 
   return (
     <ColorSchemeProvider
@@ -178,8 +186,8 @@ export default function TaskManager() {
               <Button onClick={() => {
                 addTask(); 
                 setAddModalOpen(false); 
-                  }} >
-                  Add Task
+              }}>
+                Add Task
               </Button>
             </Group>
           </Modal>
@@ -262,22 +270,17 @@ export default function TaskManager() {
               <Button onClick={() => sortTasksByStatus("Not done")}>
                 Prioritize Not Done
               </Button>
-              <Button
-                onClick={() => filterTasksByStatus("Done")}
-              >
+              <Button onClick={() => filterTasksByStatus("Done")}>
                 Filter: Done
               </Button>
-              <Button
-                onClick={() => filterTasksByStatus("Not done")}
-              >
+              <Button onClick={() => filterTasksByStatus("Not done")}>
                 Filter: Not Done
               </Button>
-              <Button
-                onClick={() => filterTasksByStatus("In Progress")}
-              >
+              <Button onClick={() => filterTasksByStatus("In Progress")}>
                 Filter: In Progress
               </Button>
               <Button onClick={sortTasksByDeadline}>Sort by Deadline</Button>
+              <Button onClick={resetFilter}>All Tasks</Button> 
             </Group>
 
             {tasks.length > 0 ? (
