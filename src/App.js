@@ -317,7 +317,6 @@ export default function TaskManager() {
               </Text>
             )}
 
-            {/* Add Task Button */}
             <Button
               fullWidth
               mt="md"
